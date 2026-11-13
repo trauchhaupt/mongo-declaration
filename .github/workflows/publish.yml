@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-  name: Build and Verify
+    name: Build and Verify
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,6 @@ jobs:
       - name: Run Tests and Verify Plugin
         run: ./gradlew check verifyPlugin
         env:
-          # If your plugin requires specific properties during test runs
           ORG_GRADLE_PROJECT_pluginVersion: ${{ github.ref_name }}
 
       - name: Build Plugin Artifact
@@ -62,8 +61,6 @@ jobs:
         run: ./gradlew publishPlugin
         env:
           ORG_GRADLE_PROJECT_pluginVersion: ${{ github.ref_name }}
-          # Pass your JetBrains Marketplace Token
           PUBLISH_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
-          # If signing parameters are managed via Gradle properties:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
