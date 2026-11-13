@@ -1,0 +1,2 @@
+PS F:\projects\mongo-declaration> git tag v1.0.2
+PS F:\projects\mongo-declaration> git push origin v1.0.2
