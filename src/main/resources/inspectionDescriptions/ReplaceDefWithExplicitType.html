@@ -1,0 +1,25 @@
+<html>
+<body>
+Reports Groovy variable declarations using the <code>def</code> or <code>var</code> keyword when an explicit type can be inferred.
+<p>
+    Replacing dynamic <code>def</code> and <code>var</code> declarations with explicit static types enhances type safety, eliminates ambiguity, and maximizes productivity by optimizing IDE code analysis, autocompletion, and refactoring capabilities.
+</p>
+<p>
+    A quick-fix is provided to replace <code>def</code> or <code>var</code> with the inferred explicit type.
+</p>
+<p><b>Example:</b></p>
+<pre><code>
+def name = "MongoDB"
+var port = 27017
+</code></pre>
+<p>After the fix is applied:</p>
+<pre><code>
+String name = "MongoDB"
+Integer port = 27017
+</code></pre>
+<!-- tooltip end -->
+<p>
+    Only declarations where a non-<code>Object</code>, uniform explicit type can be inferred across all declared variables will be reported.
+</p>
+</body>
+</html>
