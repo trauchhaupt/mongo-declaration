@@ -6,6 +6,13 @@ plugins {
     id("org.jetbrains.intellij.platform")
 }
 
+repositories {
+    mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     testImplementation(libs.junit)
@@ -18,5 +25,16 @@ dependencies {
 
         // Add plugin dependencies for compilation here, for example:
         bundledPlugin("org.intellij.groovy")
+    }
+}
+
+intellijPlatform {
+    signing {
+        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
+        privateKey.set(System.getenv("PRIVATE_KEY"))
+        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
+    }
+    publishing {
+        token.set(System.getenv("PUBLISH_TOKEN"))
     }
 }

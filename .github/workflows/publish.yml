@@ -1,0 +1,69 @@
+name: Build, Sign, and Publish Plugin
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on version tags like v1.0.0
+
+jobs:
+  build:
+  name: Build and Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Run Tests and Verify Plugin
+        run: ./gradlew check verifyPlugin
+        env:
+          # If your plugin requires specific properties during test runs
+          ORG_GRADLE_PROJECT_pluginVersion: ${{ github.ref_name }}
+
+      - name: Build Plugin Artifact
+        run: ./gradlew buildPlugin
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-artifact
+          path: build/distributions/*.zip
+
+  publish:
+    name: Sign and Publish to Marketplace
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Download Built Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-artifact
+          path: build/distributions/
+
+      - name: Publish Plugin
+        run: ./gradlew publishPlugin
+        env:
+          ORG_GRADLE_PROJECT_pluginVersion: ${{ github.ref_name }}
+          # Pass your JetBrains Marketplace Token
+          PUBLISH_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
+          # If signing parameters are managed via Gradle properties:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
