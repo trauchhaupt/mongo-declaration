@@ -14,28 +14,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Verify version matches Git tag
-        run: |
-          # Extract the 'version' value from gradle.properties and strip whitespace/carriage returns
-          PROP_VERSION=$(grep -E '^version\s*=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
+      - name: Update gradle.properties version from V-tag
+        run:
+          if [[ "$GITHUB_REF_NAME" == V* ]]; then
+            # Strip the leading uppercase 'V'
+            NEW_VERSION="${GITHUB_REF_NAME#V}"
+            echo "Tag starts with 'V'. Updating gradle.properties version to '$NEW_VERSION'..."
           
-          # Get the Git tag name (strip a leading 'v' if your tags look like 'v1.0.0')
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-
-          echo "gradle.properties version: '$PROP_VERSION'"
-          echo "Git tag version:           '$TAG_VERSION'"
-
-          if [ -z "$PROP_VERSION" ]; then
-            echo "::error::Could not find a 'version' property in gradle.properties."
-            exit 1
+            # Verify the version key exists before replacing
+            if grep -qE '^version\s*=' gradle.properties; then
+              sed -i -E "s/^version\s*=.*/version=${NEW_VERSION}/" gradle.properties
+            else
+              echo "::error::Could not find a 'version' property in gradle.properties to update."
+              exit 1
+            fi
+          else
+            echo "Tag '$GITHUB_REF_NAME' does not start with 'V'. Leaving gradle.properties unchanged."
           fi
 
-          if [ "$PROP_VERSION" != "$TAG_VERSION" ]; then
-            echo "::error::Version mismatch! gradle.properties ($PROP_VERSION) does not match tag ($TAG_VERSION)."
-            exit 1
-          fi
-
-      # ... your existing Java/Gradle setup and publish steps go here ...
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
